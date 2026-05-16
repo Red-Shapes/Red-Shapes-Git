@@ -187,7 +187,21 @@ async function createRepository(e) {
 
         const newRepo = await response.json();
         repositories.push(newRepo);
-        displayRepositories(repositories);
+
+        const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+        if (searchTerm) {
+            filteredRepositories = repositories.filter(repo =>
+                (repo.name && repo.name.toLowerCase().includes(searchTerm)) ||
+                (repo.owner && repo.owner.toLowerCase().includes(searchTerm)) ||
+                (repo.description && repo.description.toLowerCase().includes(searchTerm)) ||
+                (repo.language && repo.language.toLowerCase().includes(searchTerm)) ||
+                (Array.isArray(repo.topics) && repo.topics.some(topic => topic.toLowerCase().includes(searchTerm)))
+            );
+        } else {
+            filteredRepositories = [...repositories];
+        }
+
+        displayRepositories(filteredRepositories);
         closeModal('newRepoModal');
         document.getElementById('newRepoForm').reset();
         showNotification(`Repository "${newRepo.name}" created successfully!`, 'success');
