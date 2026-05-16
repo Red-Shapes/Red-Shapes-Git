@@ -109,9 +109,40 @@ app.get('/api/repositories/:id', (req, res) => {
 
 // Create repository
 app.post('/api/repositories', authenticateToken, (req, res) => {
+  const allowedFields = ['name', 'description', 'language', 'topics', 'license', 'private'];
+  const payload = {};
+
+  const invalidField = Object.keys(req.body).find(field => !allowedFields.includes(field));
+  if (invalidField) {
+    return res.status(400).json({ message: `Field "${invalidField}" is not allowed` });
+  }
+
+  for (const field of allowedFields) {
+    if (Object.prototype.hasOwnProperty.call(req.body, field)) {
+      payload[field] = req.body[field];
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(payload, 'topics')) {
+    if (!Array.isArray(payload.topics) || !payload.topics.every(t => typeof t === 'string')) {
+      return res.status(400).json({ message: 'Field "topics" must be an array of strings' });
+    }
+  }
+
+  const stringFields = ['name', 'description', 'language', 'license'];
+  for (const field of stringFields) {
+    if (Object.prototype.hasOwnProperty.call(payload, field) && typeof payload[field] !== 'string') {
+      return res.status(400).json({ message: `Field "${field}" must be a string` });
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(payload, 'private') && typeof payload.private !== 'boolean') {
+    return res.status(400).json({ message: 'Field "private" must be a boolean' });
+  }
+
   const newRepo = {
     id: nextRepositoryId++,
-    ...req.body,
+    ...payload,
     stars: 0,
     forks: 0,
     issues: 0,
