@@ -359,7 +359,13 @@ function authenticateToken(req, res, next) {
   if (!token) return res.status(401).json({ message: 'missing token' });
   try {
     const payload = jwt.verify(token, JWT_SECRET);
-    const user = users.find(u => u.id === payload.userId);
+  const updates = {
+    name: name ?? req.user.name,
+    email: email ?? req.user.email,
+    bio: bio ?? req.user.bio,
+    avatarUrl: avatarUrl ?? req.user.avatarUrl
+  };
+  Object.assign(req.user, updates);
     if (!user) return res.status(401).json({ message: 'invalid token' });
     req.user = user;
     next();
