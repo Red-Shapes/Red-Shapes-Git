@@ -127,10 +127,12 @@ app.get('/api/repositories/:id/issues', (req, res) => {
   res.json(repoIssues);
 });
 
+let nextIssueId = issues.length > 0 ? Math.max(...issues.map(i => i.id)) + 1 : 1;
+
 // Create issue
 app.post('/api/repositories/:id/issues', (req, res) => {
   const newIssue = {
-    id: issues.length + 1,
+    id: nextIssueId++,
     repoId: parseInt(req.params.id),
     ...req.body,
     createdAt: new Date()
