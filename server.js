@@ -359,7 +359,13 @@ app.get('/api/profile', authenticateToken, (req, res) => {
 
 app.put('/api/profile', authenticateToken, (req, res) => {
   const { name, email, bio, avatarUrl } = req.body;
-  Object.assign(req.user, { name: name ?? req.user.name, email: email ?? req.user.email, bio: bio ?? req.user.bio, avatarUrl: avatarUrl ?? req.user.avatarUrl });
+  const updates = {
+    name: name ?? req.user.name,
+    email: email ?? req.user.email,
+    bio: bio ?? req.user.bio,
+    avatarUrl: avatarUrl ?? req.user.avatarUrl
+  };
+  Object.assign(req.user, updates);
   const { passwordHash, ...safe } = req.user;
   res.json(safe);
 });
