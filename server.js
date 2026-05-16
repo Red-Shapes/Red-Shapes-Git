@@ -61,6 +61,7 @@ let repositories = [
   }
 ];
 
+let nextRepositoryId = repositories.reduce((maxId, repo) => Math.max(maxId, repo.id), 0) + 1;
 let issues = [];
 let pullRequests = [];
 
@@ -81,7 +82,7 @@ app.get('/api/repositories/:id', (req, res) => {
 // Create repository
 app.post('/api/repositories', (req, res) => {
   const newRepo = {
-    id: repositories.length + 1,
+    id: nextRepositoryId++,
     ...req.body,
     stars: 0,
     forks: 0,
@@ -127,10 +128,12 @@ app.get('/api/repositories/:id/issues', (req, res) => {
   res.json(repoIssues);
 });
 
+let nextIssueId = issues.length > 0 ? Math.max(...issues.map(i => i.id)) + 1 : 1;
+
 // Create issue
 app.post('/api/repositories/:id/issues', (req, res) => {
   const newIssue = {
-    id: issues.length + 1,
+    id: nextIssueId++,
     repoId: parseInt(req.params.id),
     ...req.body,
     createdAt: new Date()
