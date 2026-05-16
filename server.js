@@ -262,7 +262,7 @@ app.get('/api/repositories/:id/pulls', (req, res) => {
 app.post('/api/repositories/:id/pulls', authenticateToken, (req, res) => {
   const repoId = parseInt(req.params.id, 10);
   if (!Number.isInteger(repoId)) {
-    return res.status(400).json({ message: 'invalid repository id' });
+    return res.status(400).json({ message: 'Invalid repository ID' });
   }
 
   const repoExists = repositories.some(r => r.id === repoId);
