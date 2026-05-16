@@ -108,7 +108,7 @@ app.get('/api/repositories/:id', (req, res) => {
 });
 
 // Create repository
-app.post('/api/repositories', (req, res) => {
+app.post('/api/repositories', authenticateToken, (req, res) => {
   const newRepo = {
     id: nextRepositoryId++,
     ...req.body,
