@@ -194,10 +194,14 @@ let nextIssueId = issues.length > 0 ? Math.max(...issues.map(i => i.id)) + 1 : 1
 let nextPullRequestId = pullRequests.length > 0 ? Math.max(...pullRequests.map(p => p.id)) + 1 : 1;
 
 // Create issue
-app.post('/api/repositories/:id/issues', (req, res) => {
+app.post('/api/repositories/:id/issues', authenticateToken, (req, res) => {
+  const repoId = parseInt(req.params.id);
+  const repositoryExists = repositories.some(r => r.id === repoId);
+  if (!repositoryExists) return res.status(404).json({ message: 'Repository not found' });
+
   const newIssue = {
     id: nextIssueId++,
-    repoId: parseInt(req.params.id),
+    repoId,
     ...req.body,
     createdAt: new Date()
   };
