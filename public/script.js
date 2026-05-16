@@ -248,6 +248,7 @@ async function forkRepository(repoId) {
     const repo = repositories.find(r => r.id === repoId);
     if (!repo) return;
 
+    const previousForks = repo.forks;
     repo.forks += 1;
 
     try {
@@ -261,6 +262,9 @@ async function forkRepository(repoId) {
         openRepoDetail(repoId);
         showNotification('Repository forked!', 'success');
     } catch (error) {
+        repo.forks = previousForks;
+        displayRepositories(repositories);
+        openRepoDetail(repoId);
         console.error('Error forking repository:', error);
         showNotification('Error forking repository', 'error');
     }
