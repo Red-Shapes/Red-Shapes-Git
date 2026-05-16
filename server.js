@@ -243,9 +243,26 @@ app.post('/api/repositories/:id/issues', authenticateToken, (req, res) => {
     return res.status(400).json({ message: 'Invalid repository ID' });
   }
 
+  if (!Number.isInteger(repoId)) {
+    return res.status(400).json({ message: 'Invalid repository ID' });
+  }
+  const { title, description, status } = req.body || {};
+  if (!title) {
+    return res.status(400).json({ message: 'Title is required' });
+  }
+
+  const allowedStatuses = ['open', 'closed'];
+  const normalizedStatus = status || 'open';
+  if (!allowedStatuses.includes(normalizedStatus)) {
+    return res.status(400).json({ message: 'Invalid status. Allowed values are: open, closed.' });
+  }
+
+
   const repositoryExists = repositories.some(r => r.id === repoId);
   if (!repositoryExists) return res.status(404).json({ message: 'Repository not found' });
-
+    title,
+    description: description || '',
+    status: normalizedStatus,
   const { title, description, status } = req.body || {};
   if (!title) {
     return res.status(400).json({ message: 'Title is required' });
