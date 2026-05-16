@@ -238,14 +238,31 @@ let nextPullRequestId = pullRequests.length > 0 ? Math.max(...pullRequests.map(p
 
 // Create issue
 app.post('/api/repositories/:id/issues', authenticateToken, (req, res) => {
-  const repoId = parseInt(req.params.id);
+  const repoId = parseInt(req.params.id, 10);
+  if (!Number.isInteger(repoId)) {
+    return res.status(400).json({ message: 'Invalid repository ID' });
+  }
+
   const repositoryExists = repositories.some(r => r.id === repoId);
   if (!repositoryExists) return res.status(404).json({ message: 'Repository not found' });
+
+  const { title, description, status } = req.body || {};
+  if (!title) {
+    return res.status(400).json({ message: 'Title is required' });
+  }
+
+  const allowedStatuses = ['open', 'closed'];
+  const normalizedStatus = status || 'open';
+  if (!allowedStatuses.includes(normalizedStatus)) {
+    return res.status(400).json({ message: 'Invalid status. Allowed values are: open, closed.' });
+  }
 
   const newIssue = {
     id: nextIssueId++,
     repoId,
-    ...req.body,
+    title,
+    description: description || '',
+    status: normalizedStatus,
     createdAt: new Date()
   };
   issues.push(newIssue);
@@ -325,9 +342,9 @@ app.post('/api/auth/register', async (req, res) => {
 
 app.post('/api/auth/login', async (req, res) => {
   const { username, password } = req.body;
-  if (!username || !password) return res.status(400).json({ message: 'username and password required' });
+  if (!username || !password) return res.status(400).json({ message: 'Username and password required' });
   const user = users.find(u => u.username === username);
-  if (!user) return res.status(401).json({ message: 'invalid credentials' });
+  if (!user) return res.status(401).json({ message: 'Invalid credentials' });
   const match = await bcrypt.compare(password, user.passwordHash);
   if (!match) return res.status(401).json({ message: 'invalid credentials' });
 
@@ -359,7 +376,13 @@ app.get('/api/profile', authenticateToken, (req, res) => {
 
 app.put('/api/profile', authenticateToken, (req, res) => {
   const { name, email, bio, avatarUrl } = req.body;
-  Object.assign(req.user, { name: name ?? req.user.name, email: email ?? req.user.email, bio: bio ?? req.user.bio, avatarUrl: avatarUrl ?? req.user.avatarUrl });
+  const updates = {
+    name: name ?? req.user.name,
+    email: email ?? req.user.email,
+    bio: bio ?? req.user.bio,
+    avatarUrl: avatarUrl ?? req.user.avatarUrl
+  };
+  Object.assign(req.user, updates);
   const { passwordHash, ...safe } = req.user;
   res.json(safe);
 });
