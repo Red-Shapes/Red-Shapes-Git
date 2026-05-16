@@ -108,7 +108,7 @@ app.get('/api/repositories/:id', (req, res) => {
 });
 
 // Create repository
-app.post('/api/repositories', (req, res) => {
+app.post('/api/repositories', authenticateToken, (req, res) => {
   const newRepo = {
     id: nextRepositoryId++,
     ...req.body,
@@ -122,7 +122,7 @@ app.post('/api/repositories', (req, res) => {
 });
 
 // Update repository
-app.put('/api/repositories/:id', (req, res) => {
+app.put('/api/repositories/:id', authenticateToken, (req, res) => {
   const repo = repositories.find(r => r.id === parseInt(req.params.id));
   if (!repo) return res.status(404).json({ message: 'Repository not found' });
 
@@ -165,7 +165,7 @@ app.put('/api/repositories/:id', (req, res) => {
 });
 
 // Delete repository
-app.delete('/api/repositories/:id', (req, res) => {
+app.delete('/api/repositories/:id', authenticateToken, (req, res) => {
   const index = repositories.findIndex(r => r.id === parseInt(req.params.id));
   if (index === -1) return res.status(404).json({ message: 'Repository not found' });
   
@@ -191,6 +191,7 @@ app.get('/api/repositories/:id/issues', (req, res) => {
 });
 
 let nextIssueId = issues.length > 0 ? Math.max(...issues.map(i => i.id)) + 1 : 1;
+let nextPullRequestId = pullRequests.length > 0 ? Math.max(...pullRequests.map(p => p.id)) + 1 : 1;
 
 // Create issue
 app.post('/api/repositories/:id/issues', (req, res) => {
@@ -213,7 +214,7 @@ app.get('/api/repositories/:id/pulls', (req, res) => {
 // Create pull request
 app.post('/api/repositories/:id/pulls', (req, res) => {
   const newPull = {
-    id: pullRequests.length + 1,
+    id: nextPullRequestId++,
     repoId: parseInt(req.params.id),
     ...req.body,
     createdAt: new Date()
@@ -227,6 +228,8 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+let nextUserId = (users.reduce((max, u) => Math.max(max, Number.isInteger(u.id) ? u.id : 0), 0)) + 1;
+
 // Authentication routes
 app.post('/api/auth/register', async (req, res) => {
   const { username, password, name, email } = req.body;
@@ -235,7 +238,7 @@ app.post('/api/auth/register', async (req, res) => {
 
   const passwordHash = await bcrypt.hash(password, 10);
   const newUser = {
-    id: users.length + 1,
+    id: nextUserId++,
     username,
     passwordHash,
     name: name || username,
