@@ -61,6 +61,7 @@ let repositories = [
   }
 ];
 
+let nextRepositoryId = repositories.reduce((maxId, repo) => Math.max(maxId, repo.id), 0) + 1;
 let issues = [];
 let pullRequests = [];
 
@@ -81,7 +82,7 @@ app.get('/api/repositories/:id', (req, res) => {
 // Create repository
 app.post('/api/repositories', (req, res) => {
   const newRepo = {
-    id: repositories.length + 1,
+    id: nextRepositoryId++,
     ...req.body,
     stars: 0,
     forks: 0,
