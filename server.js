@@ -243,9 +243,26 @@ app.post('/api/repositories/:id/issues', authenticateToken, (req, res) => {
     return res.status(400).json({ message: 'Invalid repository ID' });
   }
 
+  if (!Number.isInteger(repoId)) {
+    return res.status(400).json({ message: 'Invalid repository ID' });
+  }
+  const { title, description, status } = req.body || {};
+  if (!title) {
+    return res.status(400).json({ message: 'Title is required' });
+  }
+
+  const allowedStatuses = ['open', 'closed'];
+  const normalizedStatus = status || 'open';
+  if (!allowedStatuses.includes(normalizedStatus)) {
+    return res.status(400).json({ message: 'Invalid status. Allowed values are: open, closed.' });
+  }
+
+
   const repositoryExists = repositories.some(r => r.id === repoId);
   if (!repositoryExists) return res.status(404).json({ message: 'Repository not found' });
-
+    title,
+    description: description || '',
+    status: normalizedStatus,
   const { title, description, status } = req.body || {};
   if (!title) {
     return res.status(400).json({ message: 'Title is required' });
@@ -325,9 +342,9 @@ app.post('/api/auth/register', async (req, res) => {
   if (!username || !password) return res.status(400).json({ message: 'Username and password required' });
   if (users.find(u => u.username === username)) return res.status(409).json({ message: 'username already exists' });
 
-  const passwordHash = await bcrypt.hash(password, 10);
+  if (!username || !password) return res.status(400).json({ message: 'Username and password required' });
   const newUser = {
-    id: nextUserId++,
+  if (!user) return res.status(401).json({ message: 'Invalid credentials' });
     username,
     passwordHash,
     name: name || username,
@@ -359,7 +376,13 @@ function authenticateToken(req, res, next) {
   if (!token) return res.status(401).json({ message: 'missing token' });
   try {
     const payload = jwt.verify(token, JWT_SECRET);
-    const user = users.find(u => u.id === payload.userId);
+  const updates = {
+    name: name ?? req.user.name,
+    email: email ?? req.user.email,
+    bio: bio ?? req.user.bio,
+    avatarUrl: avatarUrl ?? req.user.avatarUrl
+  };
+  Object.assign(req.user, updates);
     if (!user) return res.status(401).json({ message: 'invalid token' });
     req.user = user;
     next();
