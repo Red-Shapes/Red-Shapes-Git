@@ -122,7 +122,7 @@ app.post('/api/repositories', (req, res) => {
 });
 
 // Update repository
-app.put('/api/repositories/:id', (req, res) => {
+app.put('/api/repositories/:id', authenticateToken, (req, res) => {
   const repo = repositories.find(r => r.id === parseInt(req.params.id));
   if (!repo) return res.status(404).json({ message: 'Repository not found' });
 
