@@ -212,11 +212,36 @@ app.get('/api/repositories/:id/pulls', (req, res) => {
 });
 
 // Create pull request
-app.post('/api/repositories/:id/pulls', (req, res) => {
+app.post('/api/repositories/:id/pulls', authenticateToken, (req, res) => {
+  const repoId = parseInt(req.params.id, 10);
+  if (!Number.isInteger(repoId)) {
+    return res.status(400).json({ message: 'invalid repository id' });
+  }
+
+  const repoExists = repositories.some(r => r.id === repoId);
+  if (!repoExists) {
+    return res.status(404).json({ message: 'repository not found' });
+  }
+
+  const { title, description, sourceBranch, targetBranch, status } = req.body || {};
+  if (!title || !sourceBranch || !targetBranch) {
+    return res.status(400).json({ message: 'title, sourceBranch, and targetBranch are required' });
+  }
+
+  const allowedStatuses = ['open', 'closed', 'merged'];
+  const normalizedStatus = status || 'open';
+  if (!allowedStatuses.includes(normalizedStatus)) {
+    return res.status(400).json({ message: 'invalid status' });
+  }
+
   const newPull = {
     id: nextPullRequestId++,
-    repoId: parseInt(req.params.id),
-    ...req.body,
+    repoId,
+    title,
+    description: description || '',
+    sourceBranch,
+    targetBranch,
+    status: normalizedStatus,
     createdAt: new Date()
   };
   pullRequests.push(newPull);
