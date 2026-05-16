@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Clone - Collaboration Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">⚙️</span>
+                <span class="logo-text">GitHub Clone</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#explore">Explore</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <input type="text" id="searchInput" class="search-box" placeholder="Search repositories...">
+                <button class="btn-primary" onclick="openModal('newRepoModal')">New Repository</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Collaborate on Code</h1>
+            <p>Build better software together with our collaboration platform</p>
+            <button class="btn-large" onclick="openModal('newRepoModal')">Create Repository</button>
+        </div>
+    </section>
+
+    <!-- Main Container -->
+    <main class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3>Quick Navigation</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="#" onclick="switchTab('repositories')">Repositories</a></li>
+                    <li><a href="#" onclick="switchTab('issues')">Issues</a></li>
+                    <li><a href="#" onclick="switchTab('pullRequests')">Pull Requests</a></li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <h3>Trending</h3>
+                <ul class="trending-list" id="trendingList">
+                    <!-- Populated by JavaScript -->
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Repositories Tab -->
+            <div id="repositoriesTab" class="tab-content active">
+                <h2>Repositories</h2>
+                <div class="controls">
+                    <div class="filter-group">
+                        <label for="languageFilter">Language:</label>
+                        <select id="languageFilter" onchange="filterRepositories()">
+                            <option value="">All</option>
+                            <option value="JavaScript">JavaScript</option>
+                            <option value="TypeScript">TypeScript</option>
+                            <option value="Python">Python</option>
+                        </select>
+                    </div>
+                    <div class="sort-group">
+                        <label for="sortBy">Sort by:</label>
+                        <select id="sortBy" onchange="sortRepositories()">
+                            <option value="name">Name</option>
+                            <option value="stars">Stars</option>
+                            <option value="updated">Recently Updated</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="repositoriesList" class="repositories-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Issues Tab -->
+            <div id="issuesTab" class="tab-content">
+                <h2>Issues</h2>
+                <div id="issuesList" class="issues-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Pull Requests Tab -->
+            <div id="pullRequestsTab" class="tab-content">
+                <h2>Pull Requests</h2>
+                <div id="pullRequestsList" class="pull-requests-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <aside class="right-sidebar">
+            <div class="stats-box">
+                <h3>Statistics</h3>
+                <div class="stat">
+                    <span class="stat-label">Total Repositories</span>
+                    <span class="stat-value" id="totalRepos">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Total Issues</span>
+                    <span class="stat-value" id="totalIssues">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Total PRs</span>
+                    <span class="stat-value" id="totalPRs">0</span>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- New Repository Modal -->
+    <div id="newRepoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('newRepoModal')">&times;</span>
+            <h2>Create New Repository</h2>
+            <form id="newRepoForm" onsubmit="createRepository(event)">
+                <div class="form-group">
+                    <label for="repoName">Repository Name:</label>
+                    <input type="text" id="repoName" required placeholder="e.g., my-project">
+                </div>
+                <div class="form-group">
+                    <label for="repoOwner">Owner:</label>
+                    <input type="text" id="repoOwner" required placeholder="Your username">
+                </div>
+                <div class="form-group">
+                    <label for="repoDescription">Description:</label>
+                    <textarea id="repoDescription" placeholder="What's this repository about?" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="repoLanguage">Primary Language:</label>
+                    <input type="text" id="repoLanguage" placeholder="e.g., JavaScript">
+                </div>
+                <div class="form-group">
+                    <label for="repoTopics">Topics (comma-separated):</label>
+                    <input type="text" id="repoTopics" placeholder="e.g., web, api, tutorial">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="repoPublic" checked>
+                        Public Repository
+                    </label>
+                </div>
+                <button type="submit" class="btn-primary">Create Repository</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Repository Detail Modal -->
+    <div id="repoDetailModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close" onclick="closeModal('repoDetailModal')">&times;</span>
+            <div id="repoDetails">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Issue Modal -->
+    <div id="issueModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('issueModal')">&times;</span>
+            <h2>Create Issue</h2>
+            <form id="issueForm" onsubmit="createIssue(event)">
+                <div class="form-group">
+                    <label for="issueTitle">Title:</label>
+                    <input type="text" id="issueTitle" required placeholder="Issue title">
+                </div>
+                <div class="form-group">
+                    <label for="issueDescription">Description:</label>
+                    <textarea id="issueDescription" placeholder="Describe the issue" rows="5"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="issuePriority">Priority:</label>
+                    <select id="issuePriority">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Create Issue</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pull Request Modal -->
+    <div id="pullRequestModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('pullRequestModal')">&times;</span>
+            <h2>Create Pull Request</h2>
+            <form id="pullRequestForm" onsubmit="createPullRequest(event)">
+                <div class="form-group">
+                    <label for="prTitle">Title:</label>
+                    <input type="text" id="prTitle" required placeholder="PR title">
+                </div>
+                <div class="form-group">
+                    <label for="prBranch">From Branch:</label>
+                    <input type="text" id="prBranch" required placeholder="feature/new-feature">
+                </div>
+                <div class="form-group">
+                    <label for="prTargetBranch">To Branch:</label>
+                    <input type="text" id="prTargetBranch" required placeholder="main" value="main">
+                </div>
+                <div class="form-group">
+                    <label for="prDescription">Description:</label>
+                    <textarea id="prDescription" placeholder="Describe your changes" rows="5"></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Create Pull Request</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>About</h4>
+                <p>A GitHub-like collaboration platform for developers</p>
+            </div>
+            <div class="footer-section">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#docs">Documentation</a></li>
+                    <li><a href="#api">API</a></li>
+                    <li><a href="#status">Status</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#privacy">Privacy</a></li>
+                    <li><a href="#terms">Terms</a></li>
+                    <li><a href="#security">Security</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Community</h4>
+                <ul>
+                    <li><a href="#twitter">Twitter</a></li>
+                    <li><a href="#github">GitHub</a></li>
+                    <li><a href="#discord">Discord</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 GitHub Clone. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

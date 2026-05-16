@@ -1,0 +1,13 @@
+# Configuration for GitHub Issue Templates
+
+blank_issues_enabled: false
+contact_links:
+  - name: "Questions & Support"
+    url: "https://github.com/Red-Shapes/Red-Shapes-Git/discussions"
+    about: "Ask questions and get support from the community"
+  - name: "Feature Discussions"
+    url: "https://github.com/Red-Shapes/Red-Shapes-Git/discussions/categories/ideas"
+    about: "Discuss new ideas and feature requests"
+  - name: "Security Issues"
+    url: "mailto:security@github-clone.dev"
+    about: "Report security vulnerabilities responsibly"

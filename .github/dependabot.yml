@@ -1,0 +1,28 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "maintainers"
+    assignees:
+      - "maintainers"
+    labels:
+      - "dependencies"
+      - "javascript"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    pull-request-branch-name:
+      separator: "/"
+    rebase-strategy: "auto"
+    allow:
+      - dependency-type: "production"
+      - dependency-type: "development"
+    ignore:
+      - dependency-name: "express"
+        versions: ["4.16.x"]
