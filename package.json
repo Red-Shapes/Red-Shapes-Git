@@ -7,12 +7,17 @@
     "start": "node server.js",
     "dev": "node server.js"
   },
-  "keywords": ["git", "platform", "collaboration"],
+  "keywords": [
+    "git",
+    "platform",
+    "collaboration"
+  ],
   "author": "Red Shapes",
   "license": "Apache-2.0",
   "dependencies": {
     "express": "^5.2.1",
     "body-parser": "^2.2.2",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "express-rate-limit": "^8.5.2"
   }
 }
