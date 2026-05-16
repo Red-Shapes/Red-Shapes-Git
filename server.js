@@ -9,7 +9,13 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET || JWT_SECRET.trim() === '') {
-  throw new Error('Missing required environment variable: JWT_SECRET');
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Missing required environment variable: JWT_SECRET');
+  } else {
+    console.warn('Warning: JWT_SECRET not set; using a development fallback. Do not use in production.');
+    // Use a predictable fallback for local development/testing
+    process.env.JWT_SECRET = 'dev-secret';
+  }
 }
 
 const app = express();
@@ -242,37 +248,17 @@ app.post('/api/repositories/:id/issues', authenticateToken, (req, res) => {
   if (!Number.isInteger(repoId)) {
     return res.status(400).json({ message: 'Invalid repository ID' });
   }
-
-  if (!Number.isInteger(repoId)) {
-    return res.status(400).json({ message: 'Invalid repository ID' });
-  }
   const { title, description, status } = req.body || {};
-  if (!title) {
-    return res.status(400).json({ message: 'Title is required' });
-  }
+  if (!title) return res.status(400).json({ message: 'Title is required' });
 
   const allowedStatuses = ['open', 'closed'];
   const normalizedStatus = status || 'open';
   if (!allowedStatuses.includes(normalizedStatus)) {
     return res.status(400).json({ message: 'Invalid status. Allowed values are: open, closed.' });
   }
-
 
   const repositoryExists = repositories.some(r => r.id === repoId);
   if (!repositoryExists) return res.status(404).json({ message: 'Repository not found' });
-    title,
-    description: description || '',
-    status: normalizedStatus,
-  const { title, description, status } = req.body || {};
-  if (!title) {
-    return res.status(400).json({ message: 'Title is required' });
-  }
-
-  const allowedStatuses = ['open', 'closed'];
-  const normalizedStatus = status || 'open';
-  if (!allowedStatuses.includes(normalizedStatus)) {
-    return res.status(400).json({ message: 'Invalid status. Allowed values are: open, closed.' });
-  }
 
   const newIssue = {
     id: nextIssueId++,
@@ -338,13 +324,13 @@ let nextUserId = (users.reduce((max, u) => Math.max(max, Number.isInteger(u.id) 
 
 // Authentication routes
 app.post('/api/auth/register', async (req, res) => {
-  const { username, password, name, email } = req.body;
+  const { username, password, name, email } = req.body || {};
   if (!username || !password) return res.status(400).json({ message: 'Username and password required' });
   if (users.find(u => u.username === username)) return res.status(409).json({ message: 'username already exists' });
 
-  if (!username || !password) return res.status(400).json({ message: 'Username and password required' });
+  const passwordHash = await bcrypt.hash(password, 10);
   const newUser = {
-  if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+    id: nextUserId++,
     username,
     passwordHash,
     name: name || username,
@@ -376,13 +362,7 @@ function authenticateToken(req, res, next) {
   if (!token) return res.status(401).json({ message: 'missing token' });
   try {
     const payload = jwt.verify(token, JWT_SECRET);
-  const updates = {
-    name: name ?? req.user.name,
-    email: email ?? req.user.email,
-    bio: bio ?? req.user.bio,
-    avatarUrl: avatarUrl ?? req.user.avatarUrl
-  };
-  Object.assign(req.user, updates);
+    const user = users.find(u => u.id === payload.userId);
     if (!user) return res.status(401).json({ message: 'invalid token' });
     req.user = user;
     next();
