@@ -225,19 +225,25 @@ async function starRepository(repoId) {
     const repo = repositories.find(r => r.id === repoId);
     if (!repo) return;
 
+    const previousStars = repo.stars;
     repo.stars += 1;
 
     try {
-        await fetch(`${API_URL}/repositories/${repoId}`, {
+        const response = await fetch(`${API_URL}/repositories/${repoId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ stars: repo.stars })
         });
 
+        if (!response.ok) throw new Error('Failed to star repository');
+
         displayRepositories(repositories);
         openRepoDetail(repoId);
         showNotification('Repository starred!', 'success');
     } catch (error) {
+        repo.stars = previousStars;
+        displayRepositories(repositories);
+        openRepoDetail(repoId);
         console.error('Error starring repository:', error);
         showNotification('Error starring repository', 'error');
     }
