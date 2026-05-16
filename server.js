@@ -327,7 +327,7 @@ app.post('/api/auth/login', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) return res.status(400).json({ message: 'username and password required' });
   const user = users.find(u => u.username === username);
-  if (!user) return res.status(401).json({ message: 'invalid credentials' });
+  if (!user) return res.status(401).json({ message: 'Invalid credentials' });
   const match = await bcrypt.compare(password, user.passwordHash);
   if (!match) return res.status(401).json({ message: 'invalid credentials' });
 
