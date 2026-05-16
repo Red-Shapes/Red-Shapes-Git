@@ -272,7 +272,7 @@ app.post('/api/repositories/:id/pulls', authenticateToken, (req, res) => {
 
   const { title, description, sourceBranch, targetBranch, status } = req.body || {};
   if (!title || !sourceBranch || !targetBranch) {
-    return res.status(400).json({ message: 'title, sourceBranch, and targetBranch are required' });
+    return res.status(400).json({ message: 'Title, sourceBranch, and targetBranch are required' });
   }
 
   const allowedStatuses = ['open', 'closed', 'merged'];
