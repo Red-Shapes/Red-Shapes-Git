@@ -238,14 +238,31 @@ let nextPullRequestId = pullRequests.length > 0 ? Math.max(...pullRequests.map(p
 
 // Create issue
 app.post('/api/repositories/:id/issues', authenticateToken, (req, res) => {
-  const repoId = parseInt(req.params.id);
+  const repoId = parseInt(req.params.id, 10);
+  if (!Number.isInteger(repoId)) {
+    return res.status(400).json({ message: 'Invalid repository ID' });
+  }
+
   const repositoryExists = repositories.some(r => r.id === repoId);
   if (!repositoryExists) return res.status(404).json({ message: 'Repository not found' });
+
+  const { title, description, status } = req.body || {};
+  if (!title) {
+    return res.status(400).json({ message: 'Title is required' });
+  }
+
+  const allowedStatuses = ['open', 'closed'];
+  const normalizedStatus = status || 'open';
+  if (!allowedStatuses.includes(normalizedStatus)) {
+    return res.status(400).json({ message: 'Invalid status. Allowed values are: open, closed.' });
+  }
 
   const newIssue = {
     id: nextIssueId++,
     repoId,
-    ...req.body,
+    title,
+    description: description || '',
+    status: normalizedStatus,
     createdAt: new Date()
   };
   issues.push(newIssue);
