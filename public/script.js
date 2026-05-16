@@ -187,7 +187,21 @@ async function createRepository(e) {
 
         const newRepo = await response.json();
         repositories.push(newRepo);
-        displayRepositories(repositories);
+
+        const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+        if (searchTerm) {
+            filteredRepositories = repositories.filter(repo =>
+                (repo.name && repo.name.toLowerCase().includes(searchTerm)) ||
+                (repo.owner && repo.owner.toLowerCase().includes(searchTerm)) ||
+                (repo.description && repo.description.toLowerCase().includes(searchTerm)) ||
+                (repo.language && repo.language.toLowerCase().includes(searchTerm)) ||
+                (Array.isArray(repo.topics) && repo.topics.some(topic => topic.toLowerCase().includes(searchTerm)))
+            );
+        } else {
+            filteredRepositories = [...repositories];
+        }
+
+        displayRepositories(filteredRepositories);
         closeModal('newRepoModal');
         document.getElementById('newRepoForm').reset();
         showNotification(`Repository "${newRepo.name}" created successfully!`, 'success');
@@ -210,6 +224,7 @@ async function deleteRepository(repoId) {
         if (!response.ok) throw new Error('Failed to delete repository');
 
         repositories = repositories.filter(r => r.id !== repoId);
+        filteredRepositories = filteredRepositories.filter(r => r.id !== repoId);
         displayRepositories(repositories);
         closeModal('repoDetailModal');
         showNotification('Repository deleted successfully', 'success');
@@ -225,19 +240,25 @@ async function starRepository(repoId) {
     const repo = repositories.find(r => r.id === repoId);
     if (!repo) return;
 
+    const previousStars = repo.stars;
     repo.stars += 1;
 
     try {
-        await fetch(`${API_URL}/repositories/${repoId}`, {
+        const response = await fetch(`${API_URL}/repositories/${repoId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ stars: repo.stars })
         });
 
+        if (!response.ok) throw new Error('Failed to star repository');
+
         displayRepositories(repositories);
         openRepoDetail(repoId);
         showNotification('Repository starred!', 'success');
     } catch (error) {
+        repo.stars = previousStars;
+        displayRepositories(repositories);
+        openRepoDetail(repoId);
         console.error('Error starring repository:', error);
         showNotification('Error starring repository', 'error');
     }
@@ -248,6 +269,7 @@ async function forkRepository(repoId) {
     const repo = repositories.find(r => r.id === repoId);
     if (!repo) return;
 
+    const previousForks = repo.forks;
     repo.forks += 1;
 
     try {
@@ -261,6 +283,9 @@ async function forkRepository(repoId) {
         openRepoDetail(repoId);
         showNotification('Repository forked!', 'success');
     } catch (error) {
+        repo.forks = previousForks;
+        displayRepositories(repositories);
+        openRepoDetail(repoId);
         console.error('Error forking repository:', error);
         showNotification('Error forking repository', 'error');
     }
@@ -275,7 +300,7 @@ function searchRepositories() {
     } else {
         filteredRepositories = repositories.filter(repo =>
             repo.name.toLowerCase().includes(query) ||
-            repo.description.toLowerCase().includes(query) ||
+            repo.description?.toLowerCase().includes(query) || false ||
             repo.owner.toLowerCase().includes(query) ||
             repo.topics.some(t => t.toLowerCase().includes(query))
         );
