@@ -465,7 +465,7 @@ async function registerUser(e) {
             body: JSON.stringify({ username, email, password, name })
         });
         if (!res.ok) throw new Error('Registration failed');
-        const user = await res.json();
+        await res.json();
         showNotification('Registration successful. Please log in.', 'success');
         closeModal('registerModal');
         document.getElementById('registerForm').reset();
