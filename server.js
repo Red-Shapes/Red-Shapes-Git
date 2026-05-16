@@ -305,7 +305,7 @@ let nextUserId = (users.reduce((max, u) => Math.max(max, Number.isInteger(u.id) 
 // Authentication routes
 app.post('/api/auth/register', async (req, res) => {
   const { username, password, name, email } = req.body;
-  if (!username || !password) return res.status(400).json({ message: 'username and password required' });
+  if (!username || !password) return res.status(400).json({ message: 'Username and password required' });
   if (users.find(u => u.username === username)) return res.status(409).json({ message: 'username already exists' });
 
   const passwordHash = await bcrypt.hash(password, 10);
