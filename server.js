@@ -262,23 +262,23 @@ app.get('/api/repositories/:id/pulls', (req, res) => {
 app.post('/api/repositories/:id/pulls', authenticateToken, (req, res) => {
   const repoId = parseInt(req.params.id, 10);
   if (!Number.isInteger(repoId)) {
-    return res.status(400).json({ message: 'invalid repository id' });
+    return res.status(400).json({ message: 'Invalid repository ID' });
   }
 
   const repoExists = repositories.some(r => r.id === repoId);
   if (!repoExists) {
-    return res.status(404).json({ message: 'repository not found' });
+    return res.status(404).json({ message: 'Repository not found' });
   }
 
   const { title, description, sourceBranch, targetBranch, status } = req.body || {};
   if (!title || !sourceBranch || !targetBranch) {
-    return res.status(400).json({ message: 'title, sourceBranch, and targetBranch are required' });
+    return res.status(400).json({ message: 'Title, sourceBranch, and targetBranch are required' });
   }
 
   const allowedStatuses = ['open', 'closed', 'merged'];
   const normalizedStatus = status || 'open';
   if (!allowedStatuses.includes(normalizedStatus)) {
-    return res.status(400).json({ message: 'invalid status' });
+    return res.status(400).json({ message: 'Invalid status. Allowed values are: open, closed, merged.' });
   }
 
   const newPull = {
@@ -305,7 +305,7 @@ let nextUserId = (users.reduce((max, u) => Math.max(max, Number.isInteger(u.id) 
 // Authentication routes
 app.post('/api/auth/register', async (req, res) => {
   const { username, password, name, email } = req.body;
-  if (!username || !password) return res.status(400).json({ message: 'username and password required' });
+  if (!username || !password) return res.status(400).json({ message: 'Username and password required' });
   if (users.find(u => u.username === username)) return res.status(409).json({ message: 'username already exists' });
 
   const passwordHash = await bcrypt.hash(password, 10);
