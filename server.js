@@ -21,7 +21,19 @@ const limiter = rateLimit({
 });
 
 // Middleware
-app.use(cors());
+const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter((origin) => origin.length > 0);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  }
+}));
 app.use(bodyParser.json());
 app.use(limiter);
 app.use(express.static('public'));
@@ -109,9 +121,40 @@ app.get('/api/repositories/:id', (req, res) => {
 
 // Create repository
 app.post('/api/repositories', authenticateToken, (req, res) => {
+  const allowedFields = ['name', 'description', 'language', 'topics', 'license', 'private'];
+  const payload = {};
+
+  const invalidField = Object.keys(req.body).find(field => !allowedFields.includes(field));
+  if (invalidField) {
+    return res.status(400).json({ message: `Field "${invalidField}" is not allowed` });
+  }
+
+  for (const field of allowedFields) {
+    if (Object.prototype.hasOwnProperty.call(req.body, field)) {
+      payload[field] = req.body[field];
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(payload, 'topics')) {
+    if (!Array.isArray(payload.topics) || !payload.topics.every(t => typeof t === 'string')) {
+      return res.status(400).json({ message: 'Field "topics" must be an array of strings' });
+    }
+  }
+
+  const stringFields = ['name', 'description', 'language', 'license'];
+  for (const field of stringFields) {
+    if (Object.prototype.hasOwnProperty.call(payload, field) && typeof payload[field] !== 'string') {
+      return res.status(400).json({ message: `Field "${field}" must be a string` });
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(payload, 'private') && typeof payload.private !== 'boolean') {
+    return res.status(400).json({ message: 'Field "private" must be a boolean' });
+  }
+
   const newRepo = {
     id: nextRepositoryId++,
-    ...req.body,
+    ...payload,
     stars: 0,
     forks: 0,
     issues: 0,
@@ -194,10 +237,14 @@ let nextIssueId = issues.length > 0 ? Math.max(...issues.map(i => i.id)) + 1 : 1
 let nextPullRequestId = pullRequests.length > 0 ? Math.max(...pullRequests.map(p => p.id)) + 1 : 1;
 
 // Create issue
-app.post('/api/repositories/:id/issues', (req, res) => {
+app.post('/api/repositories/:id/issues', authenticateToken, (req, res) => {
+  const repoId = parseInt(req.params.id);
+  const repositoryExists = repositories.some(r => r.id === repoId);
+  if (!repositoryExists) return res.status(404).json({ message: 'Repository not found' });
+
   const newIssue = {
     id: nextIssueId++,
-    repoId: parseInt(req.params.id),
+    repoId,
     ...req.body,
     createdAt: new Date()
   };
@@ -212,11 +259,36 @@ app.get('/api/repositories/:id/pulls', (req, res) => {
 });
 
 // Create pull request
-app.post('/api/repositories/:id/pulls', (req, res) => {
+app.post('/api/repositories/:id/pulls', authenticateToken, (req, res) => {
+  const repoId = parseInt(req.params.id, 10);
+  if (!Number.isInteger(repoId)) {
+    return res.status(400).json({ message: 'invalid repository id' });
+  }
+
+  const repoExists = repositories.some(r => r.id === repoId);
+  if (!repoExists) {
+    return res.status(404).json({ message: 'repository not found' });
+  }
+
+  const { title, description, sourceBranch, targetBranch, status } = req.body || {};
+  if (!title || !sourceBranch || !targetBranch) {
+    return res.status(400).json({ message: 'title, sourceBranch, and targetBranch are required' });
+  }
+
+  const allowedStatuses = ['open', 'closed', 'merged'];
+  const normalizedStatus = status || 'open';
+  if (!allowedStatuses.includes(normalizedStatus)) {
+    return res.status(400).json({ message: 'invalid status' });
+  }
+
   const newPull = {
     id: nextPullRequestId++,
-    repoId: parseInt(req.params.id),
-    ...req.body,
+    repoId,
+    title,
+    description: description || '',
+    sourceBranch,
+    targetBranch,
+    status: normalizedStatus,
     createdAt: new Date()
   };
   pullRequests.push(newPull);
