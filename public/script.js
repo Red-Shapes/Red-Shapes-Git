@@ -1,5 +1,5 @@
 // API Base URL
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://red-shapes-git.onrender.com/api';
 
 // State
 let repositories = [];

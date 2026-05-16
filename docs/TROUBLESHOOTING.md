@@ -77,7 +77,7 @@ npm install
 
 **Symptoms:**
 ```
-GET http://localhost:3000/api/repositories
+GET https://red-shapes-git.onrender.com/api/repositories
 → 404 Not Found
 ```
 
@@ -86,12 +86,12 @@ GET http://localhost:3000/api/repositories
 1. **Check server is running:**
 In terminal, you should see:
 ```
-Server running on http://localhost:3000
+Server running on https://red-shapes-git.onrender.com
 ```
 
 2. **Verify URL spelling:**
-- Correct: `http://localhost:3000/api/repositories`
-- Wrong: `http://localhost:3000/repositories` (missing `/api/`)
+- Correct: `https://red-shapes-git.onrender.com/api/repositories`
+- Wrong: `https://red-shapes-git.onrender.com/repositories` (missing `/api/`)
 
 3. **Check request method:**
 - GET requests for listing and searching
@@ -153,13 +153,13 @@ npm start
 
 You should see:
 ```
-Server running on http://localhost:3000
+Server running on https://red-shapes-git.onrender.com
 ```
 
 2. **Check you're at the right URL:**
-- Correct: `http://localhost:3000`
+- Correct: `https://red-shapes-git.onrender.com`
 - Wrong: `http://localhost` (missing port)
-- Wrong: `http://localhost:3000/api` (try just the root)
+- Wrong: `https://red-shapes-git.onrender.com/api` (try just the root)
 
 3. **Check Express server setup:**
 In `server.js`, verify this line exists:
@@ -200,8 +200,8 @@ Look at terminal where you ran `npm start`
 
 **Symptoms:**
 ```
-Access to XMLHttpRequest at 'http://localhost:3000/api/...' 
-from origin 'http://localhost:3000' has been blocked by CORS policy
+Access to XMLHttpRequest at 'https://red-shapes-git.onrender.com/api/...' 
+from origin 'https://red-shapes-git.onrender.com' has been blocked by CORS policy
 ```
 
 **Solutions:**
@@ -242,8 +242,8 @@ If you restarted the server, data is gone
 In `server.js`, the `repositories` array should have initial data
 
 4. **Verify API endpoint:**
-- Try `http://localhost:3000/api/repositories`
-- Not `http://localhost:3000/repositories`
+- Try `https://red-shapes-git.onrender.com/api/repositories`
+- Not `https://red-shapes-git.onrender.com/repositories`
 
 ---
 
@@ -514,7 +514,7 @@ Look for error messages and stack traces
 - Network tab: Failed requests
 - Elements tab: DOM structure
 
-3. **Check localhost:3000/api/repositories:**
+3. **Check https://red-shapes-git.onrender.com/api/repositories:**
 If this works, frontend can connect to backend
 
 4. **Read the logs:**
@@ -537,7 +537,7 @@ Before asking for help, verify:
 - [ ] Node.js v14+ installed
 - [ ] `npm install` completed without errors
 - [ ] Server running (`npm start`)
-- [ ] Browser at `http://localhost:3000`
+- [ ] Browser at `https://red-shapes-git.onrender.com`
 - [ ] No errors in browser console (F12)
 - [ ] No errors in terminal where server runs
 

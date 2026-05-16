@@ -87,7 +87,7 @@ npm start
 ```
 
 4. **Open in browser**
-Navigate to `http://localhost:3000` in your web browser.
+Navigate to `https://red-shapes-git.onrender.com` in your web browser.
 
 ### Development Mode
 

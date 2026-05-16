@@ -5,7 +5,7 @@ Complete API reference for GitHub Clone.
 ## Base URL
 
 ```
-http://localhost:3000/api
+https://red-shapes-git.onrender.com/api
 ```
 
 ## Authentication
@@ -490,7 +490,7 @@ Access-Control-Allow-Headers: Content-Type
 
 **Get All Repositories:**
 ```javascript
-fetch('http://localhost:3000/api/repositories')
+fetch('https://red-shapes-git.onrender.com/api/repositories')
   .then(response => response.json())
   .then(data => console.log(data))
   .catch(error => console.error('Error:', error));
@@ -507,7 +507,7 @@ const newRepo = {
   isPublic: true
 };
 
-fetch('http://localhost:3000/api/repositories', {
+fetch('https://red-shapes-git.onrender.com/api/repositories', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json'
@@ -522,7 +522,7 @@ fetch('http://localhost:3000/api/repositories', {
 **Search Repositories:**
 ```javascript
 const query = 'javascript';
-fetch(`http://localhost:3000/api/search?q=${query}`)
+fetch(`https://red-shapes-git.onrender.com/api/search?q=${query}`)
   .then(response => response.json())
   .then(data => console.log('Results:', data))
   .catch(error => console.error('Error:', error));
@@ -532,12 +532,12 @@ fetch(`http://localhost:3000/api/search?q=${query}`)
 
 **Get All Repositories:**
 ```bash
-curl http://localhost:3000/api/repositories
+curl https://red-shapes-git.onrender.com/api/repositories
 ```
 
 **Create Repository:**
 ```bash
-curl -X POST http://localhost:3000/api/repositories \
+curl -X POST https://red-shapes-git.onrender.com/api/repositories \
   -H "Content-Type: application/json" \
   -d '{
     "name": "my-project",
@@ -548,7 +548,7 @@ curl -X POST http://localhost:3000/api/repositories \
 
 **Delete Repository:**
 ```bash
-curl -X DELETE http://localhost:3000/api/repositories/1
+curl -X DELETE https://red-shapes-git.onrender.com/api/repositories/1
 ```
 
 ---

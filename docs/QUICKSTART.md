@@ -29,11 +29,11 @@ npm start
 
 You should see:
 ```
-Server running on http://localhost:3000
+Server running on https://red-shapes-git.onrender.com
 ```
 
 ### Step 5: Open in Browser
-Navigate to [http://localhost:3000](http://localhost:3000) in your web browser.
+Navigate to [https://red-shapes-git.onrender.com](https://red-shapes-git.onrender.com) in your web browser.
 
 ## 🎮 First Steps
 
@@ -127,12 +127,12 @@ const PORT = 3000;  // Change 3000 to your preferred port
 
 **Get All Repositories:**
 ```bash
-curl http://localhost:3000/api/repositories
+curl https://red-shapes-git.onrender.com/api/repositories
 ```
 
 **Create a Repository:**
 ```bash
-curl -X POST http://localhost:3000/api/repositories \
+curl -X POST https://red-shapes-git.onrender.com/api/repositories \
   -H "Content-Type: application/json" \
   -d '{
     "name": "test-repo",
@@ -146,7 +146,7 @@ curl -X POST http://localhost:3000/api/repositories \
 
 **Search Repositories:**
 ```bash
-curl "http://localhost:3000/api/search?q=javascript"
+curl "https://red-shapes-git.onrender.com/api/search?q=javascript"
 ```
 
 ### Using Postman or Insomnia
@@ -154,9 +154,9 @@ curl "http://localhost:3000/api/search?q=javascript"
 Import this collection:
 ```json
 {
-  "GET /api/repositories": "http://localhost:3000/api/repositories",
-  "POST /api/repositories": "http://localhost:3000/api/repositories",
-  "GET /api/search": "http://localhost:3000/api/search?q=query"
+  "GET /api/repositories": "https://red-shapes-git.onrender.com/api/repositories",
+  "POST /api/repositories": "https://red-shapes-git.onrender.com/api/repositories",
+  "GET /api/search": "https://red-shapes-git.onrender.com/api/search?q=query"
 }
 ```
 
@@ -192,7 +192,7 @@ npm install
 ```
 
 ### "Page shows 'Cannot GET /'"
-Make sure server is running and you're at `http://localhost:3000`
+Make sure server is running and you're at `https://red-shapes-git.onrender.com`
 
 ### Blank page with no styling
 1. Check browser console (F12) for errors
