@@ -210,6 +210,7 @@ async function deleteRepository(repoId) {
         if (!response.ok) throw new Error('Failed to delete repository');
 
         repositories = repositories.filter(r => r.id !== repoId);
+        filteredRepositories = filteredRepositories.filter(r => r.id !== repoId);
         displayRepositories(repositories);
         closeModal('repoDetailModal');
         showNotification('Repository deleted successfully', 'success');
