@@ -278,7 +278,7 @@ app.post('/api/repositories/:id/pulls', authenticateToken, (req, res) => {
   const allowedStatuses = ['open', 'closed', 'merged'];
   const normalizedStatus = status || 'open';
   if (!allowedStatuses.includes(normalizedStatus)) {
-    return res.status(400).json({ message: 'invalid status' });
+    return res.status(400).json({ message: 'Invalid status. Allowed values are: open, closed, merged.' });
   }
 
   const newPull = {
