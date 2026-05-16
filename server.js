@@ -122,8 +122,42 @@ app.post('/api/repositories', (req, res) => {
 app.put('/api/repositories/:id', (req, res) => {
   const repo = repositories.find(r => r.id === parseInt(req.params.id));
   if (!repo) return res.status(404).json({ message: 'Repository not found' });
-  
-  Object.assign(repo, req.body);
+
+  const protectedFields = ['id', 'stars', 'forks', 'issues', 'pulls'];
+  const attemptedProtectedUpdate = protectedFields.find(field =>
+    Object.prototype.hasOwnProperty.call(req.body, field)
+  );
+  if (attemptedProtectedUpdate) {
+    return res.status(400).json({ message: `Field "${attemptedProtectedUpdate}" cannot be updated` });
+  }
+
+  const allowedFields = ['name', 'description', 'language', 'topics', 'license', 'private'];
+  const updates = {};
+
+  for (const field of allowedFields) {
+    if (Object.prototype.hasOwnProperty.call(req.body, field)) {
+      updates[field] = req.body[field];
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(updates, 'topics')) {
+    if (!Array.isArray(updates.topics) || !updates.topics.every(t => typeof t === 'string')) {
+      return res.status(400).json({ message: 'Field "topics" must be an array of strings' });
+    }
+  }
+
+  const stringFields = ['name', 'description', 'language', 'license'];
+  for (const field of stringFields) {
+    if (Object.prototype.hasOwnProperty.call(updates, field) && typeof updates[field] !== 'string') {
+      return res.status(400).json({ message: `Field "${field}" must be a string` });
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(updates, 'private') && typeof updates.private !== 'boolean') {
+    return res.status(400).json({ message: 'Field "private" must be a boolean' });
+  }
+
+  Object.assign(repo, updates);
   res.json(repo);
 });
 
