@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadRepositories();
     setupEventListeners();
     updateStatistics();
+    loadAuthState();
 });
 
 // Event Listeners
@@ -440,4 +441,131 @@ function escapeHtml(text) {
 function showNotification(message, type = 'info') {
     console.log(`[${type.toUpperCase()}] ${message}`);
     // In a real app, you could display this in a toast notification
+}
+
+// ------------------- Authentication -------------------
+function authFetch(url, opts = {}) {
+    const token = localStorage.getItem('token');
+    opts.headers = opts.headers || {};
+    if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+    return fetch(url, opts);
+}
+
+async function registerUser(e) {
+    e.preventDefault();
+    const username = document.getElementById('regUsername').value;
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    const name = document.getElementById('regName').value;
+
+    try {
+        const res = await fetch(`${API_URL}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password, name })
+        });
+        if (!res.ok) throw new Error('Registration failed');
+        const user = await res.json();
+        showNotification('Registration successful. Please log in.', 'success');
+        closeModal('registerModal');
+        document.getElementById('registerForm').reset();
+    } catch (err) {
+        console.error(err);
+        showNotification('Registration failed', 'error');
+    }
+}
+
+async function loginUser(e) {
+    e.preventDefault();
+    const username = document.getElementById('loginUsername').value;
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+        const res = await fetch(`${API_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        if (!res.ok) throw new Error('Login failed');
+        const payload = await res.json();
+        localStorage.setItem('token', payload.token);
+        setAuthUI(payload.user);
+        showNotification('Logged in', 'success');
+        closeModal('loginModal');
+        document.getElementById('loginForm').reset();
+    } catch (err) {
+        console.error(err);
+        showNotification('Login failed', 'error');
+    }
+}
+
+function logout() {
+    localStorage.removeItem('token');
+    setAuthUI(null);
+    showNotification('Logged out', 'info');
+}
+
+async function loadAuthState() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        setAuthUI(null);
+        return;
+    }
+    try {
+        const res = await authFetch(`${API_URL}/profile`);
+        if (!res.ok) throw new Error('Failed to load profile');
+        const user = await res.json();
+        setAuthUI(user);
+    } catch (err) {
+        console.error(err);
+        localStorage.removeItem('token');
+        setAuthUI(null);
+    }
+}
+
+function setAuthUI(user) {
+    const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const profileBtn = document.getElementById('profileBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    if (user) {
+        loginBtn.style.display = 'none';
+        registerBtn.style.display = 'none';
+        profileBtn.style.display = 'inline-block';
+        logoutBtn.style.display = 'inline-block';
+        profileBtn.textContent = user.username;
+        // populate profile form when opened
+        document.getElementById('profileName').value = user.name || '';
+        document.getElementById('profileEmail').value = user.email || '';
+        document.getElementById('profileBio').value = user.bio || '';
+    } else {
+        loginBtn.style.display = 'inline-block';
+        registerBtn.style.display = 'inline-block';
+        profileBtn.style.display = 'none';
+        logoutBtn.style.display = 'none';
+    }
+}
+
+async function updateProfile(e) {
+    e.preventDefault();
+    const name = document.getElementById('profileName').value;
+    const email = document.getElementById('profileEmail').value;
+    const bio = document.getElementById('profileBio').value;
+
+    try {
+        const res = await authFetch(`${API_URL}/profile`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, bio })
+        });
+        if (!res.ok) throw new Error('Failed to update profile');
+        const user = await res.json();
+        setAuthUI(user);
+        showNotification('Profile updated', 'success');
+        closeModal('profileModal');
+    } catch (err) {
+        console.error(err);
+        showNotification('Failed to update profile', 'error');
+    }
 }

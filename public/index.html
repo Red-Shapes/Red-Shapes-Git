@@ -23,6 +23,10 @@
             <div class="nav-buttons">
                 <input type="text" id="searchInput" class="search-box" placeholder="Search repositories...">
                 <button class="btn-primary" onclick="openModal('newRepoModal')">New Repository</button>
+                <button class="btn-ghost" id="loginBtn" onclick="openModal('loginModal')">Login</button>
+                <button class="btn-ghost" id="registerBtn" onclick="openModal('registerModal')">Register</button>
+                <button class="btn-ghost" id="profileBtn" style="display:none;" onclick="openModal('profileModal')">Profile</button>
+                <button class="btn-ghost" id="logoutBtn" style="display:none;" onclick="logout()">Logout</button>
             </div>
         </div>
     </nav>
@@ -259,6 +263,73 @@
             <p>&copy; 2024 GitHub Clone. All rights reserved.</p>
         </div>
     </footer>
+
+    <!-- Auth Modals -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            <h2>Login</h2>
+            <form id="loginForm" onsubmit="loginUser(event)">
+                <div class="form-group">
+                    <label for="loginUsername">Username</label>
+                    <input id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input id="loginPassword" type="password" required>
+                </div>
+                <button class="btn-primary" type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            <h2>Register</h2>
+            <form id="registerForm" onsubmit="registerUser(event)">
+                <div class="form-group">
+                    <label for="regUsername">Username</label>
+                    <input id="regUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input id="regEmail" type="email">
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input id="regPassword" type="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="regName">Full Name</label>
+                    <input id="regName">
+                </div>
+                <button class="btn-primary" type="submit">Create account</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('profileModal')">&times;</span>
+            <h2>Your Profile</h2>
+            <form id="profileForm" onsubmit="updateProfile(event)">
+                <div class="form-group">
+                    <label for="profileName">Full name</label>
+                    <input id="profileName">
+                </div>
+                <div class="form-group">
+                    <label for="profileEmail">Email</label>
+                    <input id="profileEmail" type="email">
+                </div>
+                <div class="form-group">
+                    <label for="profileBio">Bio</label>
+                    <textarea id="profileBio" rows="3"></textarea>
+                </div>
+                <button class="btn-primary" type="submit">Save</button>
+            </form>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>

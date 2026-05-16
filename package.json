@@ -18,6 +18,8 @@
     "express": "^5.2.1",
     "body-parser": "^2.2.2",
     "cors": "^2.8.5",
-    "express-rate-limit": "^8.5.2"
+    "bcrypt": "^5.1.0",
+    "express-rate-limit": "^8.5.2",
+    "jsonwebtoken": "^9.0.0"
   }
 }

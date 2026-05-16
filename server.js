@@ -4,6 +4,11 @@ const cors = require('cors');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
 
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'change-me-to-a-secure-secret';
+
 const app = express();
 const PORT = 3000;
 
@@ -64,6 +69,26 @@ let repositories = [
 let nextRepositoryId = repositories.reduce((maxId, repo) => Math.max(maxId, repo.id), 0) + 1;
 let issues = [];
 let pullRequests = [];
+
+// Simple in-memory users store
+let users = [
+  // example user (password: password123)
+  {
+    id: 1,
+    username: 'admin',
+    passwordHash: '',
+    name: 'Administrator',
+    email: 'admin@example.com',
+    bio: 'Project administrator',
+    createdAt: new Date()
+  }
+];
+
+(async function seedAdmin() {
+  if (!users[0].passwordHash) {
+    users[0].passwordHash = await bcrypt.hash('password123', 10);
+  }
+})();
 
 // Routes
 
@@ -163,6 +188,68 @@ app.post('/api/repositories/:id/pulls', (req, res) => {
 // Root route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Authentication routes
+app.post('/api/auth/register', async (req, res) => {
+  const { username, password, name, email } = req.body;
+  if (!username || !password) return res.status(400).json({ message: 'username and password required' });
+  if (users.find(u => u.username === username)) return res.status(409).json({ message: 'username already exists' });
+
+  const passwordHash = await bcrypt.hash(password, 10);
+  const newUser = {
+    id: users.length + 1,
+    username,
+    passwordHash,
+    name: name || username,
+    email: email || '',
+    bio: '',
+    createdAt: new Date()
+  };
+  users.push(newUser);
+  const { passwordHash: _, ...safe } = newUser;
+  res.status(201).json(safe);
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ message: 'username and password required' });
+  const user = users.find(u => u.username === username);
+  if (!user) return res.status(401).json({ message: 'invalid credentials' });
+  const match = await bcrypt.compare(password, user.passwordHash);
+  if (!match) return res.status(401).json({ message: 'invalid credentials' });
+
+  const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
+  const { passwordHash, ...safe } = user;
+  res.json({ token, user: safe });
+});
+
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ message: 'missing token' });
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    const user = users.find(u => u.id === payload.userId);
+    if (!user) return res.status(401).json({ message: 'invalid token' });
+    req.user = user;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'invalid token' });
+  }
+}
+
+// Profile routes
+app.get('/api/profile', authenticateToken, (req, res) => {
+  const { passwordHash, ...safe } = req.user;
+  res.json(safe);
+});
+
+app.put('/api/profile', authenticateToken, (req, res) => {
+  const { name, email, bio, avatarUrl } = req.body;
+  Object.assign(req.user, { name: name ?? req.user.name, email: email ?? req.user.email, bio: bio ?? req.user.bio, avatarUrl: avatarUrl ?? req.user.avatarUrl });
+  const { passwordHash, ...safe } = req.user;
+  res.json(safe);
 });
 
 // Start server
