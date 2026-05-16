@@ -325,7 +325,7 @@ app.post('/api/auth/register', async (req, res) => {
   if (!username || !password) return res.status(400).json({ message: 'Username and password required' });
   if (users.find(u => u.username === username)) return res.status(409).json({ message: 'username already exists' });
 
-  const passwordHash = await bcrypt.hash(password, 10);
+  if (!username || !password) return res.status(400).json({ message: 'Username and password required' });
   const newUser = {
   if (!user) return res.status(401).json({ message: 'Invalid credentials' });
     username,
