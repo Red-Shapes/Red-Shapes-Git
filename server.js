@@ -7,7 +7,10 @@ const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'change-me-to-a-secure-secret';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET || JWT_SECRET.trim() === '') {
+  throw new Error('Missing required environment variable: JWT_SECRET');
+}
 
 const app = express();
 const PORT = 3000;
