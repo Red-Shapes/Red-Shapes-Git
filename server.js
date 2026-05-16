@@ -191,6 +191,7 @@ app.get('/api/repositories/:id/issues', (req, res) => {
 });
 
 let nextIssueId = issues.length > 0 ? Math.max(...issues.map(i => i.id)) + 1 : 1;
+let nextPullRequestId = pullRequests.length > 0 ? Math.max(...pullRequests.map(p => p.id)) + 1 : 1;
 
 // Create issue
 app.post('/api/repositories/:id/issues', (req, res) => {
@@ -213,7 +214,7 @@ app.get('/api/repositories/:id/pulls', (req, res) => {
 // Create pull request
 app.post('/api/repositories/:id/pulls', (req, res) => {
   const newPull = {
-    id: pullRequests.length + 1,
+    id: nextPullRequestId++,
     repoId: parseInt(req.params.id),
     ...req.body,
     createdAt: new Date()
