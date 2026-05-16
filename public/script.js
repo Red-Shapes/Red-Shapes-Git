@@ -275,7 +275,7 @@ function searchRepositories() {
     } else {
         filteredRepositories = repositories.filter(repo =>
             repo.name.toLowerCase().includes(query) ||
-            repo.description.toLowerCase().includes(query) ||
+            repo.description?.toLowerCase().includes(query) || false ||
             repo.owner.toLowerCase().includes(query) ||
             repo.topics.some(t => t.toLowerCase().includes(query))
         );
