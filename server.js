@@ -267,7 +267,7 @@ app.post('/api/repositories/:id/pulls', authenticateToken, (req, res) => {
 
   const repoExists = repositories.some(r => r.id === repoId);
   if (!repoExists) {
-    return res.status(404).json({ message: 'repository not found' });
+    return res.status(404).json({ message: 'Repository not found' });
   }
 
   const { title, description, sourceBranch, targetBranch, status } = req.body || {};
