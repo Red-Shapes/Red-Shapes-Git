@@ -2,13 +2,20 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = 3000;
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100
+});
+
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use(limiter);
 app.use(express.static('public'));
 
 // In-memory database
