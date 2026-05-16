@@ -165,7 +165,7 @@ app.put('/api/repositories/:id', (req, res) => {
 });
 
 // Delete repository
-app.delete('/api/repositories/:id', (req, res) => {
+app.delete('/api/repositories/:id', authenticateToken, (req, res) => {
   const index = repositories.findIndex(r => r.id === parseInt(req.params.id));
   if (index === -1) return res.status(404).json({ message: 'Repository not found' });
   
