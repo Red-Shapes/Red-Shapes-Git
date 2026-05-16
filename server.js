@@ -327,7 +327,7 @@ app.post('/api/auth/register', async (req, res) => {
 
   const passwordHash = await bcrypt.hash(password, 10);
   const newUser = {
-    id: nextUserId++,
+  if (!user) return res.status(401).json({ message: 'Invalid credentials' });
     username,
     passwordHash,
     name: name || username,
