@@ -227,6 +227,8 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+let nextUserId = (users.reduce((max, u) => Math.max(max, Number.isInteger(u.id) ? u.id : 0), 0)) + 1;
+
 // Authentication routes
 app.post('/api/auth/register', async (req, res) => {
   const { username, password, name, email } = req.body;
@@ -235,7 +237,7 @@ app.post('/api/auth/register', async (req, res) => {
 
   const passwordHash = await bcrypt.hash(password, 10);
   const newUser = {
-    id: users.length + 1,
+    id: nextUserId++,
     username,
     passwordHash,
     name: name || username,
